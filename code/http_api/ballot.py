@@ -1,5 +1,4 @@
 import falcon
-import json
 from repos import ballotboxrepo as repo
 
 
