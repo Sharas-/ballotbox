@@ -1,5 +1,4 @@
 import falcon
-from falcon.media import JSONHandler
 import os
 from http_api import ballot
 from repos import ballotboxrepo
