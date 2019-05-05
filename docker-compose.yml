@@ -1,0 +1,12 @@
+version: '3'
+services:
+  service:
+    build:
+        context: .
+    environment:
+        - BALLOT_OPTIONS=Chilli Pica, Delano, Gusto Blynai, Iki Mishraines
+    volumes: 
+        - ./code:/srv:rw
+    ports:
+        - 9000
+    command: ["--bind=0.0.0.0:9000", "--reload", "--access-logfile=-"]
