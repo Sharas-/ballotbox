@@ -1,5 +1,4 @@
 import requests
-import uuid
 import subprocess
 from domain.ballotbox import *
 
@@ -9,7 +8,7 @@ OPTIONS = ['Chilli Pica', 'Delano', 'Gusto Blynai', 'Iki Mishraines']
 def setup_module():
     import os, time
     env_vars = dict(os.environ, BALLOT_OPTIONS = ','.join(OPTIONS))
-    subprocess.run(['docker-compose', '-f', 'tests/docker-compose.yml', 'up', '--detach', '--build'], check=True, env=env_vars)
+    subprocess.run(['docker-compose', 'up', '--detach', '--build'], check=True, env=env_vars)
     time.sleep(2) # give time for web server in the container to start
 
 def test_ballot_results_are_all_zeros_initially():
@@ -19,8 +18,8 @@ def test_ballot_results_are_all_zeros_initially():
     assert r.json() == bbox.results()
 
 def test_voter_can_vote_only_once():
-    user_auth = (str(uuid.uuid4()), 'pass')
-    vote = {'option': OPTIONS[0]}
+    user_auth = ('user1', 'pass1') 
+    vote = {'option': OPTIONS[0]} 
     r = requests.post(BALLOT_URL, json = vote, auth = user_auth) 
     assert r.status_code == 200
     r = requests.post(BALLOT_URL, json = vote, auth = user_auth) 
@@ -28,15 +27,15 @@ def test_voter_can_vote_only_once():
     assert 'already voted' in r.json()['description']
 
 def test_cannot_vote_on_nonexistent_ballot_option():
-    user_auth = (str(uuid.uuid4()), 'pass')
+    user_auth = ('user2', 'pass2')
     vote = {'option': 'non existent option'}
     r = requests.post(BALLOT_URL, json = vote, auth = user_auth) 
     assert r.status_code == 400
     assert 'no option' in r.json()['description']
 
 def test_vote_counts_are_aggregated():
-    user1_auth = (str(uuid.uuid4()), 'pass')
-    user2_auth = (str(uuid.uuid4()), 'pass')
+    user1_auth = ('user2', 'pass2')
+    user2_auth = ('user3', 'pass3')
     option = OPTIONS[1]
     vote_json = {'option': option}
     r = requests.post(BALLOT_URL, json = vote_json, auth = user1_auth) 
@@ -47,5 +46,20 @@ def test_vote_counts_are_aggregated():
     assert r.status_code == 200
     assert r.json()[option] == 2
     
+def test_can_get_voting_results_without_authentication():
+    r = requests.get(BALLOT_URL)
+    assert r.status_code == 200
+
+def test_cannot_vote_without_authentication():
+    vote = {'option': OPTIONS[0]}
+    r = requests.post(BALLOT_URL, json = vote) 
+    assert r.status_code == 401
+
+def test_cannot_vote_with_non_existent_user():
+    user_auth = ('non existent user', 'some password')
+    vote = {'option': OPTIONS[0]}
+    r = requests.post(BALLOT_URL, json = vote, auth=user_auth) 
+    assert r.status_code == 401
+
 def teardown_module():
-    subprocess.run(['docker-compose', '-f', 'tests/docker-compose.yml', 'down'])
+    subprocess.run(['docker-compose', 'down'])

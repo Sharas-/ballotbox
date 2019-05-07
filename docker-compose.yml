@@ -1,12 +1,16 @@
 version: '3'
 services:
-  service:
-    build:
-        context: .
-    environment:
-        - BALLOT_OPTIONS=Chilli Pica, Delano, Gusto Blynai, Iki Mishraines
-    volumes: 
-        - ./code:/srv:rw
-    ports:
-        - 9000
-    command: ["--bind=0.0.0.0:9000", "--reload", "--access-logfile=-"]
+    service: # ballot box service
+        container_name: ballotbox
+        build: .
+        environment:
+            - BALLOT_OPTIONS
+
+    auth: # authentication proxy for ballot box service
+      build: auth_proxy
+      ports:
+          - 9393:80
+      depends_on: 
+        - "service"
+
+    
