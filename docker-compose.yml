@@ -1,16 +1,17 @@
 version: '3'
 services:
-    service: # ballot box service
+    ballotbox:
         container_name: ballotbox
-        build: .
+        build: ballotbox
         environment:
             - BALLOT_OPTIONS
+    web:
+        build: webfront
+        environment:
+            - MENU_OPTIONS
+        ports:
+            - 80:80
+        depends_on: 
+            - "ballotbox"
 
-    auth: # authentication proxy for ballot box service
-      build: auth_proxy
-      ports:
-          - 9393:80
-      depends_on: 
-        - "service"
 
-    

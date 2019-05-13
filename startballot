@@ -1,0 +1,26 @@
+#! /bin/env python
+
+from pathlib import Path
+import string
+
+menu_options = [{'name': "Delano", 'menu': "http://delano.lt"},
+                {'name': "Iki Mishraines", 'menu': "http://iki.lt"},
+                {'name': "Chilli Pica", 'menu': "http://chillipica.lt"},
+                {'name': "Vapiano", 'menu': "http://vapiano.lt"}]
+
+def make_ballot_webui():
+    ui_template = Path('webfront/webui/ballot.html.template').read_text()
+    ui = string.Template(ui_template).safe_substitute(MENU_OPTIONS=menu_options)
+    Path('webfront/webui/ballot.html').write_text(ui)
+
+
+def start_services():
+    import os, subprocess, json
+    ballot_options = ','.join([mo['name'] for mo in menu_options]) 
+    env_vars = dict(os.environ, BALLOT_OPTIONS = ballot_options)
+    subprocess.run(['docker-compose', 'up', '--detach', '--build', '--force-recreate'], check=True, env=env_vars)
+
+if __name__ == '__main__':
+    make_ballot_webui()
+    start_services()
+

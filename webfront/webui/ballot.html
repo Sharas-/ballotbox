@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<meta charset="UTF-8">
+<head>
+   <link rel="stylesheet" type="text/css" href="style.css">
+   <script
+          src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+   <script>
+
+    var ballotbox_url = '/ballotapi'
+    var options = [{'name': 'Delano', 'menu': 'http://delano.lt'}, {'name': 'Iki Mishraines', 'menu': 'http://iki.lt'}, {'name': 'Chilli Pica', 'menu': 'http://chillipica.lt'}, {'name': 'Vapiano', 'menu': 'http://vapiano.lt'}]
+
+    function cast_vote(option)
+    {
+        $.ajax({url:ballotbox_url, type:'POST', data:option, contentType:"text/plain", dataType:"text"})
+            .done(function()
+            {
+                window.location.href = ballotbox_url
+            })
+            .fail(function(xhr, status, error)
+            {
+                alert(status + ': ' + error + '\n' + xhr.responseText)
+            });
+    }
+
+     function render_options()
+     {
+        let options_tag = $('#options');
+        options.forEach(function(o)
+            {
+                options_tag.append(`<tr><td class='ballotOption' onclick="cast_vote('${o.name}')">${o.name}</td><td><a href='${o.menu}' target='_blank'>menu</a></td></tr>`)
+            })
+     }
+     $(render_options);
+ </script>
+</head>
+    <body>
+        <table id="options">
+            <caption>pick your lunch</caption>
+        </table>
+    </body>
+</html>
+

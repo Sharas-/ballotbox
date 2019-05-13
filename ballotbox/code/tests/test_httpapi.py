@@ -55,11 +55,5 @@ def test_cannot_vote_without_authentication():
     r = requests.post(BALLOT_URL, json = vote) 
     assert r.status_code == 401
 
-def test_cannot_vote_with_non_existent_user():
-    user_auth = ('non existent user', 'some password')
-    vote = {'option': OPTIONS[0]}
-    r = requests.post(BALLOT_URL, json = vote, auth=user_auth) 
-    assert r.status_code == 401
-
 def teardown_module():
     subprocess.run(['docker-compose', 'down'])
