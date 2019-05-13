@@ -1,4 +1,4 @@
-# Web frontend for demacratic lunch election.
+# Web front-end for democratic lunch election.
 
-- Provides HTTP Basic authentication to authenticate voters.
+- Authenticates voters through HTTP Basic authentication.
 - Hosts ballot web UI.
