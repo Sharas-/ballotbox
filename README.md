@@ -1,4 +1,4 @@
-# Where are we going to have lunch today? Let's vote - majority rules
+#  Where is the team having lunch today? Let's vote - majority rules
 
 ## Usage
 
