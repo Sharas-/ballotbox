@@ -8,8 +8,8 @@ OPTIONS = ['Chilli Pica', 'Delano', 'Gusto Blynai', 'Iki Mishraines']
 def setup_module():
     import os, time
     env_vars = dict(os.environ, BALLOT_OPTIONS = ','.join(OPTIONS))
-    subprocess.run(['docker-compose', 'up', '--detach', '--build'], check=True, env=env_vars)
-    time.sleep(2) # give time for web server in the container to start
+    result = subprocess.run(['docker-compose', '-f', 'tests/startweb-docker-compose.yml', 'up', '--detach', '--build'], check=True, env=env_vars)
+    time.sleep(1) # give time for web server in the container to start
 
 def test_ballot_results_are_all_zeros_initially():
     bbox = BallotBox(OPTIONS)
@@ -56,4 +56,5 @@ def test_cannot_vote_without_authentication():
     assert r.status_code == 401
 
 def teardown_module():
-    subprocess.run(['docker-compose', 'down'])
+    subprocess.run(['docker-compose', '-f', 'tests/startweb-docker-compose.yml', 'down'])
+
