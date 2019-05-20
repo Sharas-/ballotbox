@@ -1,26 +1,44 @@
 #! /bin/env python
 
 from pathlib import Path
+import requests
 import string
+import sys
 
-menu_options = [{'name': "Delano", 'menu': "http://delano.lt"},
-                {'name': "Iki Mishraines", 'menu': "http://iki.lt"},
-                {'name': "Chilli Pica", 'menu': "http://chillipica.lt"},
-                {'name': "Vapiano", 'menu': "http://vapiano.lt"}]
+#menu_options = [{'name': "Delano", 'menu': "http://delano.lt"},
+#                {'name': "Iki Mishraines", 'menu': "http://iki.lt"},
+#                {'name': "Chilli Pica", 'menu': "http://chillipica.lt"},
+#                {'name': "Vapiano", 'menu': "http://vapiano.lt"}]
 
-def make_ballot_webui():
+def get_menu_options(options_url):
+    r = requests.get(options_url)
+    if r.status_code != 200:
+        print("Unable to read options from {}, got {} response".format(options_url, r.status_code), file=sys.stderr)
+        sys.exit(2)
+    return r.json()
+
+def make_ballot_webui(menu_options):
     ui_template = Path('webfront/webui/ballot.html.template').read_text()
     ui = string.Template(ui_template).safe_substitute(MENU_OPTIONS=menu_options)
     Path('webfront/webui/ballot.html').write_text(ui)
 
-
-def start_services():
+def start_services(ballot_options):
     import os, subprocess, json
-    ballot_options = ','.join([mo['name'] for mo in menu_options]) 
     env_vars = dict(os.environ, BALLOT_OPTIONS = ballot_options)
     subprocess.run(['docker-compose', 'up', '--detach', '--build', '--force-recreate'], check=True, env=env_vars)
 
 if __name__ == '__main__':
-    make_ballot_webui()
-    start_services()
+    if len(sys.argv) != 2:
+        print("Need menu options URL as a parameter", file=sys.stderr)
+        sys.exit(1)
+    menu_url = sys.argv[1]
+    menus = get_menu_options(menu_url)
+    if not menus:
+        print("Didn't get any menu options for the ballot", file=sys.stderr)
+        sys.exit(3)
+    print("Got menus for the day: {}".format(menus))
+    make_ballot_webui(menus)
+    ballot_options = ','.join([m['restaurant_name'] for m in menus]) 
+    start_services(ballot_options)
+    print("Startded ballot with options: {}".format(ballot_options))
 
