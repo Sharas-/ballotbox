@@ -20,7 +20,7 @@ def _read_option(req):
     req_string = req.stream.read().decode('utf-8')
     return req_string.strip() 
 
-class Resource(object):
+class Resource:
 
     def on_get(self, req, resp):
         """
