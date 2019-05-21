@@ -44,7 +44,9 @@ def cast_votes(votes):
 def setup_module():
     subprocess.check_call([f"cd {MANGER_DIR} && docker-compose up -d && cd -"], shell=True)
     populate_menus(MENUS)
-    subprocess.check_call(["./startballot", TODAYS_MENUS_URL])
+    todays_menus = requests.get(TODAYS_MENUS_URL).content
+    p = subprocess.Popen(["./startballot"], stdin=subprocess.PIPE)
+    p.communicate(todays_menus) 
 
 def test_ballot_results_correct():
     cast_votes(VOTES) 

@@ -28,7 +28,7 @@
         let options_tag = $('#options');
         options.forEach(function(o)
             {
-                options_tag.append(`<tr><td class='ballotOption' onclick="cast_vote('${o.name}')">${o.name}</td><td><a href='${o.menu}' target='_blank'>menu</a></td></tr>`)
+                options_tag.append(`<tr><td class='ballotOption' onclick="cast_vote('${o.restaurant_name}')">${o.restaurant_name}</td><td>${o.menu}</td></tr>`)
             })
      }
      $(render_options);
