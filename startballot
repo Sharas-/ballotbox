@@ -19,14 +19,14 @@ def start_services(ballot_options):
 
 if __name__ == '__main__':
     if sys.stdin.isatty():
-        print("No menu options on stdin, exititing", file=sys.stderr)
+        print("Nothing on stdin, exititing", file=sys.stderr)
         sys.exit(1)
     menus_json = sys.stdin.read()
-    if not menus_json:
-        print("Got empty menu options on stdin", file=sys.stderr)
+    menus = json.loads(menus_json)
+    if not menus:
+        print("Got empty menu options on stdin, exitting", file=sys.stderr)
         sys.exit(2)
     print("Got menus for the day: {}".format(menus_json))
-    menus = json.loads(menus_json)
     make_ballot_webui(menus)
     ballot_options = ','.join([m['restaurant_name'] for m in menus]) 
     start_services(ballot_options)
